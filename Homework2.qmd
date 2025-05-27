@@ -1,0 +1,205 @@
+---
+title: "weheartprogramminginbaser"
+author: Holly Probasco
+format: pdf
+editor: visual
+---
+
+## Task 1: Basic Vector practice
+
+### Question 1
+```{r}
+pre = c(130, 128, 116, 124, 133, 134, 118, 126, 114, 127, 141, 138, 
+        128, 140, 137, 131, 120, 128, 139, 135)
+post = c(114, 98, 113, 99, 107, 116, 113, 111, 119, 117, 101, 119, 130, 
+         122, 106, 106, 124, 102, 117, 113)
+```
+
+### Question 2
+```{r}
+naming = paste("Subject", 1:20, sep = "_")
+names(pre) = naming
+names(post) = naming
+```
+
+### Question 3
+```{r}
+diff_op = pre - post
+diff_op
+```
+
+### Question 4
+
+```{r}
+mean(as.numeric(diff_op))
+```
+
+The average decrease in blood pressure across all patients is 17 units
+
+### Question 5
+```{r}
+which(diff_op > 0)
+```
+
+### Question 6
+```{r}
+pos_diff = diff_op[diff_op > 0]
+pos_diff
+```
+
+### Question 7
+```{r}
+mean(pos_diff)
+```
+
+The average decrease in blood pressure for those where the blood pressure decreased was 20.65
+
+## Task 2: Basic Vector practice
+
+### Question 1
+
+```{r}
+data = data.frame(patient=naming,pre_bp=pre, post_bp=post, diff_bp=diff_op, 
+row.names = NULL)
+```
+
+### Question 2
+
+```{r}
+subset(data,data$diff_bp<0)
+```
+
+### Question 3
+```{r}
+data$postunder120 = (data$post_bp < 120)
+```
+
+### Question 4
+
+```{r}
+knitr::kable(data)
+```
+
+## Task 3: List Practice
+
+### Question 1
+
+```{r}
+pret3 = c(138, 135, 147, 117, 152, 134, 114, 121, 131, 130)
+postt3 = c(105, 136, 123, 130, 134, 143, 135, 139, 120, 124)
+namingt3 = paste("Subject", 1:10, sep = "_")
+difft3 = pret3 - postt3
+bp_df_placebo = data.frame(patient = namingt3, pre_bp = pret3, 
+post_bp = postt3, diff_bp = difft3 )
+bp_df_placebo$normal = (bp_df_placebo$post < 120)
+```
+
+### Question 2
+
+```{r}
+bp_list = list(treatment = data, placebo = bp_df_placebo)
+```
+
+### Question 3: Access the first list element using three different types of syntax.
+
+```{r}
+#Method 1
+bp_list[1]
+```
+
+```{r}
+#Method 2
+bp_list[[1]]
+```
+
+```{r}
+#Method 3
+bp_list$treatment
+```
+
+### Question 4
+
+```{r}
+bp_list$placebo$pre
+```
+
+## Task 4
+
+### Question 1
+
+```{r}
+data$status <- character(20)
+bp_df_placebo$status <- character(10)
+```
+
+### Question 2
+```{r}
+for (i in 1:20) {
+  if(bp_list$treatment$post_bp[i] <= 120) {
+   bp_list$treatment$status[i] = "optimal"
+  } else if(bp_list$treatment$post_bp[i] < 130) {
+    bp_list$treatment$status[i] = "borderline"
+  } else {
+    bp_list$treatment$status[i] = "high"
+  }
+}
+```
+
+### Question 3
+```{r}
+for (i in 1:10) {
+  if(bp_list$placebo$post_bp[i] <= 120) {
+   bp_list$placebo$status[i] = "optimal"
+  } else if(bp_list$placebo$post_bp[i] < 130) {
+    bp_list$placebo$status[i] = "borderline"
+  } else {
+    bp_list$placebo$status[i] = "high"
+  }
+}
+```
+
+## Task 5
+
+### Question 1
+```{r}
+bp_fun = function(bp_list, stat="mean") {
+ # get the function from the quoted string
+  my_fun = get(stat)
+  
+  treatment = bp_list$treatment
+  placebo = bp_list$placebo
+
+  stat_vector = c(my_fun(treatment$pre), my_fun(treatment$post_bp),
+  my_fun(treatment$diff), my_fun(placebo$pre),
+my_fun(placebo$post), my_fun(placebo$diff))
+   # vector of names that is created dynamically based on the statistic passed
+  name_vector = c("pre_trt_bp","post_trt_bp","diff_trt_bp",
+  "pre_plac_bp","post_plac_bp","diff_plac_bp")
+  names(stat_vector) = name_vector
+  
+  return(stat_vector)
+}
+```
+
+```{r}
+# applying function without specifying stat
+bp_fun(bp_list)
+```
+
+```{r}
+# applying function to other specified stat values
+bp_fun(bp_list, stat="var")
+```
+
+```{r}
+bp_fun(bp_list, stat="sd")
+```
+
+```{r}
+bp_fun(bp_list, stat="min")
+```
+
+```{r}
+bp_fun(bp_list, stat="max")
+```
+
